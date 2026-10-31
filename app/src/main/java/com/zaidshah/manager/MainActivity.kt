@@ -13,6 +13,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,7 +40,7 @@ class MainActivity:ComponentActivity(){
  var dark by remember { mutableStateOf(prefs.getBoolean("dark",false)) }
  var entries by remember { mutableStateOf(loadEntries(prefs.getString("entries","[]")?:"[]")) }
  var debts by remember { mutableStateOf(loadDebts(prefs.getString("debts","[]")?:"[]")) }
- var targets by remember { mutableStateOf(listOf(150000L,1000000L,4000000L)) }
+ var targets by remember { mutableStateOf(listOf(0,1,2).map { prefs.getLong("target$it", listOf(150000L,1000000L,4000000L)[it]) }) }
  var dialog by remember { mutableStateOf("") }
  var input by remember { mutableStateOf("") }
  var detail by remember { mutableStateOf("") }
@@ -53,19 +55,19 @@ class MainActivity:ComponentActivity(){
  fun saveDebts(v:List<Debt>){debts=v;prefs.edit().putString("debts",JSONArray().apply{v.forEach{put(JSONObject().put("name",it.name).put("type",it.type).put("total",it.total).put("paid",it.paid))}}.toString()).apply()}
  MaterialTheme(colorScheme=if(dark) darkColorScheme(primary=primary,background=background,surface=surface,onSurface=ink) else lightColorScheme(primary=primary,background=background,surface=surface,onSurface=ink)){
  Scaffold(containerColor=background,bottomBar={
- NavigationBar(containerColor=surface){listOf("Home","Goals","Loans","Settings").forEachIndexed{index,title->NavigationBarItem(selected=tab==index,onClick={tab=index},icon={Icon(when(index){0->Icons.Default.Home;1->Icons.Default.Flag;2->Icons.Default.AccountBalanceWallet;else->Icons.Default.Settings},null)},label={Text(title)})}}
+ Surface(color=surface,shape=RoundedCornerShape(32.dp),modifier=Modifier.padding(horizontal=18.dp,vertical=8.dp),shadowElevation=0.dp){NavigationBar(containerColor=surface,tonalElevation=0.dp,modifier=Modifier.height(72.dp)){listOf("Home","Goals","Loans","Settings").forEachIndexed{index,title->NavigationBarItem(selected=tab==index,onClick={tab=index},icon={Icon(when(index){0->Icons.Default.Home;1->Icons.Default.Flag;2->Icons.Default.AccountBalanceWallet;else->Icons.Default.Settings},null)},label={Text(title)},colors=NavigationBarItemDefaults.colors(selectedIconColor=primary,selectedTextColor=primary,indicatorColor=Color(0xFFE6EFE7)))}}}
  }){pad->
  Column(Modifier.fillMaxSize().padding(pad).verticalScroll(rememberScrollState()).padding(18.dp),verticalArrangement=Arrangement.spacedBy(14.dp)){
- Text(when(tab){0->"Hey $name 👋";1->"Your Goals";2->"Loans & Lending";else->"Settings"},style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold,color=ink)
+ Text(when(tab){0->"Hey $name, "+when(java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)){in 5..11->"Good morning!";in 12..16->"Good afternoon!";else->"Good evening!"};1->"Your Goals";2->"Loans & Lending";else->"Settings"},style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold,color=ink)
  when(tab){
  0->{
  val earned=entries.filter{it.type=="Earn"}.sumOf{it.paise};val spent=entries.filter{it.type=="Spend"}.sumOf{it.paise}
- Panel(surface){Text("Daily Earnings",fontWeight=FontWeight.Bold);Text(money(earned),style=MaterialTheme.typography.headlineLarge,color=primary);LinearProgressIndicator(progress={if(targets[0]>0)(earned.toFloat()/targets[0]).coerceIn(0f,1f) else 0f},modifier=Modifier.fillMaxWidth());Text("Spent: ${money(spent)}     Net: ${money(earned-spent)}");Row(horizontalArrangement=Arrangement.spacedBy(8.dp)){Button(onClick={dialog="Earn";input="";detail=""}){Text("+ Earn")};OutlinedButton(onClick={dialog="Spend";input="";detail=""}){Text("+ Spend")}}}
+ Panel(surface){Text("Daily Earnings",fontWeight=FontWeight.Bold);Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(20.dp)){Box(contentAlignment=Alignment.Center,modifier=Modifier.size(126.dp)){CircularProgressIndicator(progress={if(targets[0]>0)(earned.toFloat()/targets[0]).coerceIn(0f,1f) else 0f},modifier=Modifier.fillMaxSize(),strokeWidth=7.dp,color=primary,trackColor=Color(0xFFE6EFE7));Column(horizontalAlignment=Alignment.CenterHorizontally){Text(money(earned),style=MaterialTheme.typography.titleLarge,color=primary,fontWeight=FontWeight.Bold);Text("Earned",style=MaterialTheme.typography.labelSmall)}};Column{Text("Today",fontWeight=FontWeight.Bold);Text("Target: "+money(targets[0]));Text("Progress: "+(if(targets[0]>0)(earned*100/targets[0]).coerceAtMost(100) else 0)+"%")}};Text("Spent: ${money(spent)}     Net: ${money(earned-spent)}");Row(horizontalArrangement=Arrangement.spacedBy(8.dp)){Button(onClick={dialog="Earn";input="";detail=""}){Text("+ Earn")};OutlinedButton(onClick={dialog="Spend";input="";detail=""}){Text("+ Spend")}}}
  Panel(surface){Text("Loans & Lending",fontWeight=FontWeight.Bold);debts.take(3).forEach{Text("${it.name} • ${it.type}: ${money(it.total-it.paid)}")};TextButton(onClick={tab=2}){Text("See loans")}}
  Panel(surface){Text("Recent Transactions",fontWeight=FontWeight.Bold);entries.takeLast(8).reversed().forEach{Text("${it.type}: ${money(it.paise)}  ${it.note}")};if(entries.isEmpty())Text("No transactions yet")}
  }
  1->{
- Panel(surface){Text("Your Goals",fontWeight=FontWeight.Bold);listOf("Daily","Weekly","Monthly").forEachIndexed{i,label->val total=entries.filter{it.type=="Earn"}.sumOf{it.paise};Text("$label • ${money(targets[i])}");LinearProgressIndicator(progress={(total.toFloat()/targets[i]).coerceIn(0f,1f)},modifier=Modifier.fillMaxWidth());TextButton(onClick={dialog="Target$i";input="";detail=""}){Text("Edit $label target")}}}
+ Panel(surface){Text("Your Goals",fontWeight=FontWeight.Bold);Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceEvenly){listOf("Daily","Weekly","Monthly").forEachIndexed{i,label->val total=entries.filter{it.type=="Earn"}.sumOf{it.paise};Column(horizontalAlignment=Alignment.CenterHorizontally,modifier=Modifier.weight(1f)){Box(Modifier.size(86.dp),contentAlignment=Alignment.Center){CircularProgressIndicator(progress={if(targets[i]>0)(total.toFloat()/targets[i]).coerceIn(0f,1f) else 0f},modifier=Modifier.fillMaxSize(),strokeWidth=7.dp,color=primary,trackColor=Color(0xFFE6EFE7));Text((if(targets[i]>0)(total*100/targets[i]).coerceAtMost(100) else 0).toString()+"%",fontWeight=FontWeight.Bold)};Text(label,fontWeight=FontWeight.Bold);Text(money(targets[i]),fontSize=12.sp);TextButton(onClick={dialog="Target$i";input="";detail=""}){Text("Edit",fontSize=12.sp)}}}}}
  Panel(surface){Text("Completed Goals");Text("Completed goals will appear here after tracking is implemented.")}
  Panel(surface){Text("Goal History");Text("Contribution history is not enabled in this build.")}
  }
@@ -95,7 +97,7 @@ class MainActivity:ComponentActivity(){
  dialog=="Earn"||dialog=="Spend"->{saveEntries(entries+Entry(dialog,a,detail));dialog=""}
  dialog=="Loan"->{if(detail.isBlank())error="Enter a name" else{saveDebts(debts+Debt(detail.trim(),debtType,a,0));dialog=""}}
  dialog=="Repay"->{val d=debts.getOrNull(selectedDebt);if(d==null||a>d.total-d.paid)error="Amount exceeds remaining balance" else{saveDebts(debts.mapIndexed{i,item->if(i==selectedDebt)item.copy(paid=item.paid+a) else item});dialog=""}}
- dialog.startsWith("Target")->{val i=dialog.removePrefix("Target").toInt();targets=targets.toMutableList().apply{set(i,a)};dialog=""}
+ dialog.startsWith("Target")->{val i=dialog.removePrefix("Target").toInt();targets=targets.toMutableList().apply{set(i,a)};prefs.edit().putLong("target$i",a).apply();dialog=""}
  }
  }){Text("Save")}},dismissButton={TextButton(onClick={dialog="";error=""}){Text("Cancel")}})
  }
