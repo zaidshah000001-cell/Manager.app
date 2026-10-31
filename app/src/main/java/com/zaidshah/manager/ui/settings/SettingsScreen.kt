@@ -163,6 +163,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
 
                 listOf(
                     Pair("FOREST", stringResource(R.string.theme_forest)),
+                    Pair("IVORY_NAVY", "Ivory + Navy Blue"),
                     Pair("MIDNIGHT", stringResource(R.string.theme_midnight)),
                     Pair("OCEAN", stringResource(R.string.theme_ocean))
                 ).forEach { (preset, label) ->
