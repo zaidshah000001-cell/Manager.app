@@ -29,6 +29,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -64,6 +68,9 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
+    var quickOpen by remember { mutableStateOf(false) }
+    var quickEarn by remember { mutableStateOf(true) }
+    var quickAmount by remember { mutableStateOf("") }
     var showAvatarDialog by remember { mutableStateOf(false) }
 
     if (showAddDialog) {
@@ -129,8 +136,7 @@ fun HomeScreen(
         // Card A: Daily earnings
         Card(
             modifier = Modifier
-                .fillMaxWidth()
-                .clickable { showAddDialog = true },
+                .fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
@@ -149,12 +155,14 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+                    Box(modifier = Modifier.clip(CircleShape).clickable { quickOpen = !quickOpen }) {
                     CircularProgressRing(
                         percentage = uiState.goalPercentage,
                         caption = stringResource(R.string.daily_goal),
                         size = 94.dp,
                         strokeWidth = 7.dp
                     )
+                    }
 
                     Column(
                         modifier = Modifier.padding(start = 16.dp),
@@ -191,6 +199,53 @@ fun HomeScreen(
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
+
+                if (quickOpen) {
+                    Spacer(Modifier.height(14.dp))
+                    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(18.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically) {
+                                Text("Quick entry", fontWeight = FontWeight.SemiBold, color = DarkText)
+                                Text("×", modifier = Modifier.clickable { quickOpen = false }.padding(6.dp), color = MutedText)
+                            }
+                            OutlinedTextField(value = quickAmount, onValueChange = { quickAmount = it },
+                                label = { Text("Enter amount ₹") },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                singleLine = true, modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(18.dp))
+                            Spacer(Modifier.height(10.dp))
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically) {
+                                val fg = if (quickEarn) Color(0xFF07539B) else Color(0xFFC44343)
+                                val bg = if (quickEarn) Color(0xFFE0EDF9) else Color(0xFFFBE4E4)
+                                Row(modifier = Modifier.width(126.dp).height(44.dp)
+                                    .clip(RoundedCornerShape(50)).background(bg)
+                                    .clickable { quickEarn = !quickEarn }.padding(horizontal = 14.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center) {
+                                    Icon(if (quickEarn) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+                                        contentDescription = null, tint = fg, modifier = Modifier.size(18.dp))
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(if (quickEarn) "Earn" else "Spend", color = fg,
+                                        fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                                }
+                                val amountPaise = CurrencyUtils.parseRupeesToPaise(quickAmount)
+                                Button(enabled = amountPaise != null && amountPaise > 0L, onClick = {
+                                    val n = CurrencyUtils.parseRupeesToPaise(quickAmount)
+                                    if (n != null && n > 0L) {
+                                        viewModel.addTransaction(
+                                            if (quickEarn) TransactionType.EARN else TransactionType.SPEND,
+                                            n, if (quickEarn) "Quick earning" else "Quick spending", "Other")
+                                        quickAmount = ""
+                                        quickOpen = false
+                                    }
+                                }) { Text("Add ✓") }
+                            }
+                        }
+                    }
+                }
 
                 // Keep the selected-day indicator in the same centre position.
                 // Horizontal swipes change the dates, not the indicator's location.
