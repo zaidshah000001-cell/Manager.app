@@ -262,7 +262,7 @@ fun GoalsScreen(viewModel: GoalsViewModel) {
                                     .width(68.dp)
                                     .height(78.dp)
                                     .clip(RoundedCornerShape(22.dp))
-                                    .background(Color(0xFF003D74))
+                                    .background(ForestGreen)
                                     .padding(5.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
@@ -292,14 +292,14 @@ fun GoalsScreen(viewModel: GoalsViewModel) {
                                 .width(68.dp)
                                 .height(78.dp)
                                 .clip(RoundedCornerShape(22.dp))
-                                .background(Color(0xFFDCEAF4))
+                                .background(SageTrack)
                                 .clickable { showCompletedHistory = true }
                                 .padding(5.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-                            Text("See", fontSize = 11.sp, color = Color(0xFF003D74), fontWeight = FontWeight.Bold)
-                            Text("more", fontSize = 11.sp, color = Color(0xFF003D74), fontWeight = FontWeight.Bold)
+                            Text("See", fontSize = 11.sp, color = ForestGreen, fontWeight = FontWeight.Bold)
+                            Text("more", fontSize = 11.sp, color = ForestGreen, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
