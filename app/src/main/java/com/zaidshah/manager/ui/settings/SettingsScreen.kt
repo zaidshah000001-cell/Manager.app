@@ -1,6 +1,27 @@
 package com.zaidshah.manager.ui.settings
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.border
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Slider
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.toArgb
+import kotlin.math.atan2
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -54,6 +75,15 @@ import com.zaidshah.manager.ui.theme.WarmCream
 fun SettingsScreen(viewModel: SettingsViewModel) {
     val uiState by viewModel.uiState.collectAsState()
     var showAvatarChooser by remember { mutableStateOf(false) }
+    var showColorPicker by remember { mutableStateOf(false) }
+
+    if (showColorPicker) {
+        AccentColorPicker(
+            initialHex = uiState.customPrimary ?: "#356B54",
+            onDismiss = { showColorPicker = false },
+            onApply = { viewModel.applyAccent(it); showColorPicker = false }
+        )
+    }
 
     if (showAvatarChooser) {
         PresetAvatarChooser(
@@ -196,7 +226,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Card C: Custom Colours
+        // Custom accent selection: cream stays fixed.
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
@@ -204,38 +234,42 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
-                Text(
-                    text = stringResource(R.string.custom_colours),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = DarkText
-                )
-                Text(
-                    text = stringResource(R.string.custom_colours_note),
-                    fontSize = 12.sp,
-                    color = MutedText
-                )
-                Spacer(modifier = Modifier.height(14.dp))
-
+                Text("Custom Colours", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = DarkText)
+                Text("Choose an accent · Cream background stays fixed", fontSize = 12.sp, color = MutedText)
+                Spacer(modifier = Modifier.height(16.dp))
+                val defaults = listOf("#356B54", "#003D74", "#800020", "#673AB7", "#C05A28")
+                val swatches = (uiState.recentColors + defaults).distinct().take(5)
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Button(
-                        onClick = { viewModel.setThemePreset("FOREST") },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Primary", color = Color.White)
+                    swatches.forEach { hex ->
+                        val swatch = remember(hex) { runCatching { Color(android.graphics.Color.parseColor(hex)) }.getOrDefault(Color.Gray) }
+                        Box(
+                            modifier = Modifier.size(48.dp)
+                                .clip(CircleShape)
+                                .background(swatch)
+                                .border(
+                                    if (uiState.themePreset == "CUSTOM" && uiState.customPrimary.equals(hex, true)) 3.dp else 1.dp,
+                                    if (uiState.themePreset == "CUSTOM" && uiState.customPrimary.equals(hex, true)) Color.Black else Color.LightGray,
+                                    CircleShape
+                                )
+                                .clickable { viewModel.applyAccent(hex) },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (uiState.themePreset == "CUSTOM" && uiState.customPrimary.equals(hex, true)) {
+                                Icon(Icons.Default.Check, contentDescription = "Selected", tint = Color.White)
+                            }
+                        }
                     }
-                    Button(
-                        onClick = { viewModel.setThemePreset("FOREST") },
-                        colors = ButtonDefaults.buttonColors(containerColor = SageTrack),
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.weight(1f)
+                    Box(
+                        modifier = Modifier.size(52.dp).clip(RoundedCornerShape(14.dp))
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.10f))
+                            .clickable { showColorPicker = true },
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text("Background", color = DarkText)
+                        Text("More +", fontSize = 11.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -293,4 +327,94 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
 
         Spacer(modifier = Modifier.height(84.dp))
     }
+}
+
+@Composable
+private fun AccentColorPicker(
+    initialHex: String,
+    onDismiss: () -> Unit,
+    onApply: (String) -> Unit
+) {
+    val initial = remember(initialHex) {
+        runCatching { android.graphics.Color.parseColor(initialHex) }.getOrDefault(android.graphics.Color.rgb(53,107,84))
+    }
+    val hsv = remember(initial) { FloatArray(3).also { android.graphics.Color.colorToHSV(initial, it) } }
+    var hue by remember(initial) { mutableStateOf(hsv[0]) }
+    var saturation by remember(initial) { mutableStateOf(hsv[1]) }
+    var brightness by remember(initial) { mutableStateOf(hsv[2]) }
+    var manualHex by remember { mutableStateOf("") }
+    val selected = remember(hue, saturation, brightness) {
+        Color(android.graphics.Color.HSVToColor(floatArrayOf(hue, saturation, brightness)))
+    }
+    val hex = remember(selected) { String.format("#%06X", selected.toArgb() and 0xFFFFFF) }
+    val hueColors = remember {
+        (0..12).map { i -> Color(android.graphics.Color.HSVToColor(floatArrayOf(i * 30f, 1f, 1f))) }
+    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Choose accent colour", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Cream background will not change", fontSize = 12.sp, color = MutedText)
+                Spacer(Modifier.height(12.dp))
+                Canvas(
+                    modifier = Modifier.size(240.dp)
+                        .pointerInput(Unit) {
+                            detectTapGestures { p ->
+                                val dx = p.x - size.width / 2f
+                                val dy = p.y - size.height / 2f
+                                hue = ((atan2(dy, dx) * 180f / PI.toFloat() + 90f + 360f) % 360f)
+                            }
+                        }
+                        .pointerInput(Unit) {
+                            detectDragGestures { change, _ ->
+                                val dx = change.position.x - size.width / 2f
+                                val dy = change.position.y - size.height / 2f
+                                hue = ((atan2(dy, dx) * 180f / PI.toFloat() + 90f + 360f) % 360f)
+                                change.consume()
+                            }
+                        }
+                ) {
+                    val radius = size.minDimension / 2f - 18.dp.toPx()
+                    drawCircle(
+                        brush = Brush.sweepGradient(hueColors),
+                        radius = radius,
+                        style = Stroke(width = 32.dp.toPx())
+                    )
+                    drawCircle(color = selected, radius = radius * 0.67f)
+                    val angle = (hue - 90f) * PI.toFloat() / 180f
+                    val point = Offset(center.x + radius * cos(angle), center.y + radius * sin(angle))
+                    drawCircle(Color.White, radius = 10.dp.toPx(), center = point)
+                    drawCircle(Color.DarkGray, radius = 10.dp.toPx(), center = point, style = Stroke(1.5.dp.toPx()))
+                }
+                Spacer(Modifier.height(12.dp))
+                Text("Saturation", modifier = Modifier.fillMaxWidth(), fontSize = 13.sp)
+                Slider(value = saturation, onValueChange = { saturation = it })
+                Text("Brightness", modifier = Modifier.fillMaxWidth(), fontSize = 13.sp)
+                Slider(value = brightness, onValueChange = { brightness = it })
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Box(Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(selected))
+                    Text(hex, fontWeight = FontWeight.Bold)
+                }
+                OutlinedTextField(
+                    value = manualHex,
+                    onValueChange = { input ->
+                        manualHex = input.take(7)
+                        if (manualHex.matches(Regex("#[0-9A-Fa-f]{6}"))) {
+                            val parsed = android.graphics.Color.parseColor(manualHex)
+                            val values = FloatArray(3)
+                            android.graphics.Color.colorToHSV(parsed, values)
+                            hue = values[0]; saturation = values[1]; brightness = values[2]
+                        }
+                    },
+                    label = { Text("HEX code (optional)") },
+                    placeholder = { Text("#356B54") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = { TextButton(onClick = { onApply(hex) }) { Text("Apply") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+    )
 }
