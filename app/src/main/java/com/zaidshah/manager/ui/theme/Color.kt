@@ -2,7 +2,7 @@ package com.zaidshah.manager.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val ForestGreen = Color(0xFF2F6B4F)
+val ForestGreen = Color(0xFF356B54)
 val WarmCream = Color(0xFFF7F4EC)
 val CardWhite = Color(0xFFFFFFFF)
 val SageTrack = Color(0xFFE6EFE7)
