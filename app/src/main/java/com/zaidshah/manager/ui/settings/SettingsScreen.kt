@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.sp
 import com.zaidshah.manager.R
 import com.zaidshah.manager.ui.components.PresetAvatarChooser
 import com.zaidshah.manager.ui.theme.DarkText
-import com.zaidshah.manager.ui.theme.ForestGreen
+import androidx.compose.material3.MaterialTheme
 import com.zaidshah.manager.ui.theme.MutedText
 import com.zaidshah.manager.ui.theme.SageTrack
 import com.zaidshah.manager.ui.theme.WarmCream
@@ -109,7 +109,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = null,
-                        tint = ForestGreen,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(28.dp)
                     )
                 }
@@ -130,7 +130,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                     Text(
                         text = stringResource(R.string.choose_preset_avatars),
                         fontSize = 12.sp,
-                        color = ForestGreen,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.clickable { showAvatarChooser = true }
                     )
@@ -186,7 +186,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                             Icon(
                                 imageVector = Icons.Default.Check,
                                 contentDescription = null,
-                                tint = ForestGreen
+                                tint = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -223,7 +223,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                 ) {
                     Button(
                         onClick = { viewModel.setThemePreset("FOREST") },
-                        colors = ButtonDefaults.buttonColors(containerColor = ForestGreen),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.weight(1f)
                     ) {

@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zaidshah.manager.ui.theme.DarkText
-import com.zaidshah.manager.ui.theme.ForestGreen
+import androidx.compose.material3.MaterialTheme
 import com.zaidshah.manager.ui.theme.MutedText
 import com.zaidshah.manager.ui.theme.SageTrack
 
@@ -26,7 +26,7 @@ fun CircularProgressRing(
     caption: String = "",
     size: Dp = 100.dp,
     strokeWidth: Dp = 7.dp,
-    primaryColor: Color = ForestGreen,
+    primaryColor: Color = Color.Unspecified,
     trackColor: Color = SageTrack,
     modifier: Modifier = Modifier
 ) {

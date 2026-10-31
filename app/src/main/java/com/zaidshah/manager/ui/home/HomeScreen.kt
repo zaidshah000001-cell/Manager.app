@@ -49,7 +49,7 @@ import com.zaidshah.manager.ui.components.CircularProgressRing
 import com.zaidshah.manager.ui.components.InrEntryBottomSheet
 import com.zaidshah.manager.ui.components.PresetAvatarChooser
 import com.zaidshah.manager.ui.theme.DarkText
-import com.zaidshah.manager.ui.theme.ForestGreen
+import androidx.compose.material3.MaterialTheme
 import com.zaidshah.manager.ui.theme.MutedText
 import com.zaidshah.manager.ui.theme.SageTrack
 import com.zaidshah.manager.ui.theme.WarmCream
@@ -119,7 +119,7 @@ fun HomeScreen(
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = "Avatar",
-                    tint = ForestGreen
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -184,7 +184,7 @@ fun HomeScreen(
                                 text = CurrencyUtils.formatPaise(uiState.netPaise),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = if (uiState.netPaise >= 0) ForestGreen else Color.Red
+                                color = if (uiState.netPaise >= 0) MaterialTheme.colorScheme.primary else Color.Red
                             )
                         }
                     }
@@ -228,7 +228,7 @@ fun HomeScreen(
                                 .weight(1f)
                                 .padding(horizontal = 2.dp)
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(if (isSelected) ForestGreen else Color.Transparent)
+                                .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
                                 .clickable { viewModel.setSelectedDate(date) }
                                 .padding(vertical = 8.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -313,7 +313,7 @@ fun HomeScreen(
                                     Text(
                                         text = tile.initial,
                                         fontWeight = FontWeight.Bold,
-                                        color = ForestGreen
+                                        color = MaterialTheme.colorScheme.primary
                                     )
                                 }
                                 Spacer(modifier = Modifier.height(6.dp))
@@ -363,7 +363,7 @@ fun HomeScreen(
                     Text(
                         text = stringResource(R.string.see_all),
                         fontSize = 13.sp,
-                        color = ForestGreen,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -397,7 +397,7 @@ fun HomeScreen(
                                     Icon(
                                         imageVector = if (tx.type == TransactionType.EARN) Icons.Default.ArrowDownward else Icons.Default.ArrowUpward,
                                         contentDescription = null,
-                                        tint = if (tx.type == TransactionType.EARN) ForestGreen else DarkText,
+                                        tint = if (tx.type == TransactionType.EARN) MaterialTheme.colorScheme.primary else DarkText,
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
@@ -423,7 +423,7 @@ fun HomeScreen(
                                 ),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = if (tx.type == TransactionType.EARN) ForestGreen else DarkText
+                                color = if (tx.type == TransactionType.EARN) MaterialTheme.colorScheme.primary else DarkText
                             )
                         }
                         if (index < uiState.recentTransactions.lastIndex) {

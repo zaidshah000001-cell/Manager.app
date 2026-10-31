@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zaidshah.manager.R
 import com.zaidshah.manager.ui.navigation.Screen
-import com.zaidshah.manager.ui.theme.ForestGreen
+import androidx.compose.material3.MaterialTheme
 import com.zaidshah.manager.ui.theme.MutedText
 import com.zaidshah.manager.ui.theme.SageTrack
 
@@ -84,12 +84,12 @@ fun BottomCapsuleNavBar(
                         Icon(
                             imageVector = item.icon,
                             contentDescription = stringResource(item.labelRes),
-                            tint = if (isSelected) ForestGreen else MutedText
+                            tint = if (isSelected) MaterialTheme.colorScheme.primary else MutedText
                         )
                         Text(
                             text = stringResource(item.labelRes),
                             fontSize = 11.sp,
-                            color = if (isSelected) ForestGreen else MutedText
+                            color = if (isSelected) MaterialTheme.colorScheme.primary else MutedText
                         )
                     }
                 }

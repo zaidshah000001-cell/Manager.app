@@ -21,46 +21,22 @@ fun ManagerTheme(
     customBg: Color? = null,
     content: @Composable () -> Unit
 ) {
-    val colors = when (preset) {
-        "NAVY_CREAM" -> CustomThemeColors(
-            primary = Color(0xFF003D74),
-            background = WarmCream,
-            track = Color(0xFFE1EBF3),
-            textPrimary = Color(0xFF003D74),
-            textMuted = MutedText
-        )
-        "IVORY_NAVY" -> CustomThemeColors(
-            primary = Color(0xFF003D74),
-            background = Color(0xFFFFFFF0),
-            cardBackground = Color(0xFFFFFFFF),
-            track = Color(0xFFE3EDF4),
-            textPrimary = Color(0xFF003D74),
-            textMuted = Color(0xFF536F86)
-        )
-        "MIDNIGHT" -> CustomThemeColors(
-            primary = MidnightPrimary,
-            background = MidnightBg,
-            cardBackground = Color(0xFF1E293B),
-            track = Color(0xFF334155),
-            textPrimary = Color(0xFFF8FAFC),
-            textMuted = Color(0xFF94A3B8)
-        )
-        "OCEAN" -> CustomThemeColors(
-            primary = OceanPrimary,
-            background = OceanBg,
-            track = Color(0xFFE0F2FE),
-            textPrimary = Color(0xFF0C4A6E),
-            textMuted = Color(0xFF0369A1)
-        )
-        "CUSTOM" -> CustomThemeColors(
-            primary = customPrimary ?: ForestGreen,
-            background = customBg ?: WarmCream
-        )
-        else -> CustomThemeColors(
-            primary = ForestGreen,
-            background = WarmCream
-        )
+    val accent = when (preset) {
+        "NAVY_CREAM", "IVORY_NAVY" -> Color(0xFF003D74)
+        "BURGUNDY" -> Color(0xFF800020)
+        "PURPLE" -> Color(0xFF673AB7)
+        "CUSTOM" -> customPrimary ?: ForestGreen
+        else -> ForestGreen
     }
+
+    val colors = CustomThemeColors(
+        primary = accent,
+        background = WarmCream,
+        cardBackground = CardWhite,
+        track = accent.copy(alpha = 0.12f),
+        textPrimary = accent,
+        textMuted = MutedText
+    )
 
     val colorScheme = lightColorScheme(
         primary = colors.primary,

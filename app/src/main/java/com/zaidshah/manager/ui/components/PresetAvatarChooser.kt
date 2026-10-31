@@ -32,7 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zaidshah.manager.ui.theme.DarkText
-import com.zaidshah.manager.ui.theme.ForestGreen
+import androidx.compose.material3.MaterialTheme
 import com.zaidshah.manager.ui.theme.SageTrack
 
 val AvatarPresets = listOf(
@@ -75,7 +75,7 @@ fun PresetAvatarChooser(
                         modifier = Modifier
                             .size(64.dp)
                             .clip(CircleShape)
-                            .background(if (isSelected) ForestGreen else SageTrack)
+                            .background(if (isSelected) MaterialTheme.colorScheme.primary else SageTrack)
                             .clickable {
                                 onSelect(index)
                                 onDismiss()
@@ -85,7 +85,7 @@ fun PresetAvatarChooser(
                         Icon(
                             imageVector = AvatarPresets[index],
                             contentDescription = null,
-                            tint = if (isSelected) Color.White else ForestGreen,
+                            tint = if (isSelected) Color.White else MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(32.dp)
                         )
                     }

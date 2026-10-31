@@ -49,7 +49,7 @@ import androidx.compose.ui.unit.sp
 import com.zaidshah.manager.R
 import com.zaidshah.manager.data.local.entities.LoanDirection
 import com.zaidshah.manager.ui.theme.DarkText
-import com.zaidshah.manager.ui.theme.ForestGreen
+import androidx.compose.material3.MaterialTheme
 import com.zaidshah.manager.ui.theme.MutedText
 import com.zaidshah.manager.ui.theme.SageTrack
 import com.zaidshah.manager.ui.theme.WarmCream
@@ -116,7 +116,7 @@ fun LoansScreen(viewModel: LoansViewModel) {
                         }
                     }
                 ) {
-                    Text("Save", color = ForestGreen)
+                    Text("Save", color = MaterialTheme.colorScheme.primary)
                 }
             },
             dismissButton = {
@@ -162,7 +162,7 @@ fun LoansScreen(viewModel: LoansViewModel) {
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = null,
-                    tint = ForestGreen
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -224,7 +224,7 @@ fun LoansScreen(viewModel: LoansViewModel) {
                             text = CurrencyUtils.formatPaise(uiState.lentPaise),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = ForestGreen
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -252,7 +252,7 @@ fun LoansScreen(viewModel: LoansViewModel) {
                     modifier = Modifier
                         .weight(1f)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(if (isSelected) ForestGreen else Color.Transparent)
+                        .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
                         .clickable { viewModel.setFilter(f) }
                         .padding(vertical = 8.dp),
                     contentAlignment = Alignment.Center
@@ -291,7 +291,7 @@ fun LoansScreen(viewModel: LoansViewModel) {
                     Text(
                         text = stringResource(R.string.add_loan),
                         fontSize = 13.sp,
-                        color = ForestGreen,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.clickable { showAddLoanDialog = true }
                     )
@@ -329,7 +329,7 @@ fun LoansScreen(viewModel: LoansViewModel) {
                                     Text(
                                         text = personWithLoans.person.name.firstOrNull()?.uppercase() ?: "P",
                                         fontWeight = FontWeight.Bold,
-                                        color = ForestGreen
+                                        color = MaterialTheme.colorScheme.primary
                                     )
                                 }
                                 Spacer(modifier = Modifier.width(12.dp))

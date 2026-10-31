@@ -48,7 +48,7 @@ import com.zaidshah.manager.R
 import com.zaidshah.manager.data.local.entities.GoalType
 import com.zaidshah.manager.ui.components.CircularProgressRing
 import com.zaidshah.manager.ui.theme.DarkText
-import com.zaidshah.manager.ui.theme.ForestGreen
+import androidx.compose.material3.MaterialTheme
 import com.zaidshah.manager.ui.theme.MutedText
 import com.zaidshah.manager.ui.theme.SageTrack
 import com.zaidshah.manager.ui.theme.WarmCream
@@ -83,7 +83,7 @@ fun GoalsScreen(viewModel: GoalsViewModel) {
                         editingGoalType = null
                     }
                 ) {
-                    Text("Save", color = ForestGreen)
+                    Text("Save", color = MaterialTheme.colorScheme.primary)
                 }
             },
             dismissButton = {
@@ -153,7 +153,7 @@ fun GoalsScreen(viewModel: GoalsViewModel) {
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = null,
-                    tint = ForestGreen
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -262,7 +262,7 @@ fun GoalsScreen(viewModel: GoalsViewModel) {
                                     .width(68.dp)
                                     .height(78.dp)
                                     .clip(RoundedCornerShape(22.dp))
-                                    .background(ForestGreen)
+                                    .background(MaterialTheme.colorScheme.primary)
                                     .padding(5.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
@@ -298,8 +298,8 @@ fun GoalsScreen(viewModel: GoalsViewModel) {
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-                            Text("See", fontSize = 11.sp, color = ForestGreen, fontWeight = FontWeight.Bold)
-                            Text("more", fontSize = 11.sp, color = ForestGreen, fontWeight = FontWeight.Bold)
+                            Text("See", fontSize = 11.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                            Text("more", fontSize = 11.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
