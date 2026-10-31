@@ -59,6 +59,7 @@ fun GoalsScreen(viewModel: GoalsViewModel) {
     val uiState by viewModel.uiState.collectAsState()
     var editingGoalType by remember { mutableStateOf<GoalType?>(null) }
     var targetInput by remember { mutableStateOf("") }
+    var showCompletedHistory by remember { mutableStateOf(false) }
 
     if (editingGoalType != null) {
         AlertDialog(
@@ -93,12 +94,36 @@ fun GoalsScreen(viewModel: GoalsViewModel) {
         )
     }
 
+    if (showCompletedHistory) {
+        AlertDialog(
+            onDismissRequest = { showCompletedHistory = false },
+            title = { Text("Completed goals history") },
+            text = {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    if (uiState.completedGoals.isEmpty()) {
+                        Text("No completed goals yet.")
+                    } else {
+                        uiState.completedGoals.forEach { item ->
+                            Text(
+                                text = "${item.goalType.name}  •  ${CurrencyUtils.formatPaise(item.targetPaise)}",
+                                modifier = Modifier.padding(vertical = 7.dp)
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showCompletedHistory = false }) { Text("Close") }
+            }
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(WarmCream)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 24.dp)
+            .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -133,7 +158,7 @@ fun GoalsScreen(viewModel: GoalsViewModel) {
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Card A: Your Progress
         Card(
@@ -142,7 +167,7 @@ fun GoalsScreen(viewModel: GoalsViewModel) {
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
-            Column(modifier = Modifier.padding(20.dp)) {
+            Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = stringResource(R.string.your_progress),
                     fontSize = 16.sp,
@@ -154,7 +179,7 @@ fun GoalsScreen(viewModel: GoalsViewModel) {
                     fontSize = 12.sp,
                     color = MutedText
                 )
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -176,7 +201,7 @@ fun GoalsScreen(viewModel: GoalsViewModel) {
                         ) {
                             CircularProgressRing(
                                 percentage = prog.percentage,
-                                size = 80.dp,
+                                size = 72.dp,
                                 strokeWidth = 7.dp
                             )
                             Spacer(modifier = Modifier.height(8.dp))
@@ -193,7 +218,7 @@ fun GoalsScreen(viewModel: GoalsViewModel) {
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Card B: Completed Goals
         Card(
@@ -202,7 +227,7 @@ fun GoalsScreen(viewModel: GoalsViewModel) {
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
-            Column(modifier = Modifier.padding(20.dp)) {
+            Column(modifier = Modifier.padding(16.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -213,11 +238,7 @@ fun GoalsScreen(viewModel: GoalsViewModel) {
                         fontWeight = FontWeight.SemiBold,
                         color = DarkText
                     )
-                    Text(
-                        text = stringResource(R.string.see_all),
-                        fontSize = 13.sp,
-                        color = ForestGreen
-                    )
+                    // Full history is opened from the final See more tile.
                 }
                 Spacer(modifier = Modifier.height(14.dp))
 
@@ -235,42 +256,56 @@ fun GoalsScreen(viewModel: GoalsViewModel) {
                             .horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        uiState.completedGoals.forEach { item ->
-                            Row(
+                        uiState.completedGoals.take(5).forEach { item ->
+                            Column(
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(16.dp))
-                                    .background(SageTrack)
-                                    .padding(horizontal = 14.dp, vertical = 10.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                                    .width(68.dp)
+                                    .height(78.dp)
+                                    .clip(RoundedCornerShape(22.dp))
+                                    .background(Color(0xFF003D74))
+                                    .padding(5.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Check,
                                     contentDescription = null,
-                                    tint = ForestGreen,
-                                    modifier = Modifier.size(16.dp)
+                                    tint = Color.White,
+                                    modifier = Modifier.size(14.dp)
                                 )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Column {
-                                    Text(
-                                        text = item.goalType.name,
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = DarkText
-                                    )
-                                    Text(
-                                        text = CurrencyUtils.formatPaise(item.targetPaise),
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = ForestGreen
-                                    )
-                                }
+                                Text(
+                                    text = item.goalType.name.take(3),
+                                    fontSize = 10.sp,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = CurrencyUtils.formatPaise(item.targetPaise),
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    maxLines = 1
+                                )
                             }
+                        }
+                        Column(
+                            modifier = Modifier
+                                .width(68.dp)
+                                .height(78.dp)
+                                .clip(RoundedCornerShape(22.dp))
+                                .background(Color(0xFFDCEAF4))
+                                .clickable { showCompletedHistory = true }
+                                .padding(5.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text("See", fontSize = 11.sp, color = Color(0xFF003D74), fontWeight = FontWeight.Bold)
+                            Text("more", fontSize = 11.sp, color = Color(0xFF003D74), fontWeight = FontWeight.Bold)
                         }
                     }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(84.dp))
+        Spacer(modifier = Modifier.height(92.dp))
     }
 }
