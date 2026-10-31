@@ -58,21 +58,32 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         MutableStateFlow(daily)
     }
 
-    val uiState: StateFlow<HomeUiState> = combine(
+    private data class HomeInputs(
+        val name: String,
+        val avatarId: Int,
+        val date: LocalDate,
+        val summary: com.zaidshah.manager.data.repository.DailySummary,
+        val target: Long
+    )
+
+    private val homeInputs = combine(
         prefs.profileName,
         prefs.avatarId,
         _selectedDate,
         dailySummary,
-        goalTarget,
+        goalTarget
+    ) { name, avatarId, date, summary, target ->
+        HomeInputs(name, avatarId, date, summary, target)
+    }
+
+    val uiState: StateFlow<HomeUiState> = combine(
+        homeInputs,
         loanRepo.getPeopleWithLoans(),
         financeRepo.getRecentTransactions(5)
-    ) { name, avatarId, date, summary, target, peopleWithLoans, txs ->
-        val pct = if (target > 0L) {
-            ((summary.earnedPaise.toDouble() / target.toDouble()) * 100).toInt().coerceAtMost(100)
-        } else {
-            0
-        }
-
+    ) { inputs, peopleWithLoans, txs ->
+        val pct = if (inputs.target > 0L) {
+            ((inputs.summary.earnedPaise.toDouble() / inputs.target.toDouble()) * 100).toInt().coerceAtMost(100)
+        } else 0
         val tiles = peopleWithLoans.take(3).mapNotNull { p ->
             val firstLoan = p.loans.firstOrNull() ?: return@mapNotNull null
             LoanTileUi(
@@ -82,15 +93,14 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 balancePaise = firstLoan.outstandingPaise
             )
         }
-
         HomeUiState(
-            profileName = name,
-            avatarId = avatarId,
-            selectedDate = date,
-            earnedPaise = summary.earnedPaise,
-            spentPaise = summary.spentPaise,
-            netPaise = summary.netPaise,
-            dailyGoalPaise = target,
+            profileName = inputs.name,
+            avatarId = inputs.avatarId,
+            selectedDate = inputs.date,
+            earnedPaise = inputs.summary.earnedPaise,
+            spentPaise = inputs.summary.spentPaise,
+            netPaise = inputs.summary.netPaise,
+            dailyGoalPaise = inputs.target,
             goalPercentage = pct,
             recentLoans = tiles,
             recentTransactions = txs
