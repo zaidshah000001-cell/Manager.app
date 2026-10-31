@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.delay
 import com.zaidshah.manager.util.DateUtils
 import java.time.temporal.WeekFields
 import kotlinx.coroutines.flow.stateIn
@@ -35,14 +38,20 @@ class GoalsViewModel(application: Application) : AndroidViewModel(application) {
     private val db = AppDatabase.getInstance(application)
     private val repo = FinanceRepository(db.transactionDao(), db.goalDao())
 
-    private val now = LocalDate.now()
-    private val week = DateUtils.getWeekPeriod(now)
-    private val month = DateUtils.getMonthPeriod(now)
-    private val dayEarned = repo.getEarnedForPeriod(
-        DateUtils.toStartOfDayInstant(now), DateUtils.toEndOfDayInstant(now)
-    )
-    private val weekEarned = repo.getEarnedForPeriod(week.first, week.second)
-    private val monthEarned = repo.getEarnedForPeriod(month.first, month.second)
+    private val today = MutableStateFlow(LocalDate.now())
+    init {
+        viewModelScope.launch {
+            while (true) {
+                val next = LocalDate.now().plusDays(1).atStartOfDay(java.time.ZoneId.systemDefault()).toInstant()
+                delay(java.time.Duration.between(java.time.Instant.now(), next).toMillis().coerceAtLeast(100L) + 100L)
+                today.value = LocalDate.now()
+            }
+        }
+    }
+    private val now get() = today.value
+    private val dayEarned = today.flatMapLatest { d -> repo.getEarnedForPeriod(DateUtils.toStartOfDayInstant(d), DateUtils.toEndOfDayInstant(d)) }
+    private val weekEarned = today.flatMapLatest { d -> val w = DateUtils.getWeekPeriod(d); repo.getEarnedForPeriod(w.first, w.second) }
+    private val monthEarned = today.flatMapLatest { d -> val m = DateUtils.getMonthPeriod(d); repo.getEarnedForPeriod(m.first, m.second) }
 
     private fun progress(type: GoalType, target: Long, earned: Long): GoalProgressUi {
         val pct = if (target > 0L) {
@@ -53,11 +62,17 @@ class GoalsViewModel(application: Application) : AndroidViewModel(application) {
 
     val uiState: StateFlow<GoalsUiState> = combine(
         repo.getGoalTargets(),
+        today,
         dayEarned,
         weekEarned,
         monthEarned,
         repo.getRecentCompletions(100)
-    ) { targets, daily, weekly, monthly, completions ->
+    ) { values ->
+        @Suppress("UNCHECKED_CAST") val targets = values[0] as List<com.zaidshah.manager.data.local.entities.GoalTargetEntity>
+        val daily = values[2] as Long
+        val weekly = values[3] as Long
+        val monthly = values[4] as Long
+        @Suppress("UNCHECKED_CAST") val completions = values[5] as List<GoalCompletionEntity>
         val dailyTarget = targets.find { it.type == GoalType.DAILY }?.targetPaise ?: 100000L
         val weeklyTarget = targets.find { it.type == GoalType.WEEKLY }?.targetPaise ?: 500000L
         val monthlyTarget = targets.find { it.type == GoalType.MONTHLY }?.targetPaise ?: 2000000L
@@ -69,7 +84,7 @@ class GoalsViewModel(application: Application) : AndroidViewModel(application) {
         )
     }.onEach { state ->
         // Completion keys are unique in Room; repeated emissions do not duplicate history.
-        val weekKey = week.first.toString().take(10)
+        val weekKey = now.with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY)).toString()
         repo.syncCurrentCompletion(GoalType.DAILY, now.toString(),
             state.dailyProgress.earnedPaise, state.dailyProgress.targetPaise)
         repo.syncCurrentCompletion(GoalType.WEEKLY, weekKey,
