@@ -12,8 +12,8 @@ android {
         applicationId = "com.zaidshah.manager"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 3
+        versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -22,6 +22,18 @@ android {
 
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")
+        }
+    }
+
+    signingConfigs {
+        create("managerStableTest") {
+            val keyPath = System.getenv("MANAGER_SIGNING_KEYSTORE_PATH")
+            if (!keyPath.isNullOrBlank()) {
+                storeFile = file(keyPath)
+                storePassword = System.getenv("MANAGER_SIGNING_PASSWORD")
+                keyAlias = "manager-test"
+                keyPassword = System.getenv("MANAGER_SIGNING_PASSWORD")
+            }
         }
     }
 
@@ -35,6 +47,9 @@ android {
         }
         debug {
             applicationIdSuffix = ".correctionsv1"
+            if (!System.getenv("MANAGER_SIGNING_KEYSTORE_PATH").isNullOrBlank()) {
+                signingConfig = signingConfigs.getByName("managerStableTest")
+            }
             isMinifyEnabled = false
         }
     }
