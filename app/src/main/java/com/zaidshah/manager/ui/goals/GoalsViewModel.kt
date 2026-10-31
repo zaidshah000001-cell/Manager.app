@@ -60,6 +60,8 @@ class GoalsViewModel(application: Application) : AndroidViewModel(application) {
         return GoalProgressUi(type, target, earned, pct)
     }
 
+    private var lastSyncedProgress: List<Any>? = null
+
     val uiState: StateFlow<GoalsUiState> = combine(
         repo.getGoalTargets(),
         today,
@@ -83,6 +85,15 @@ class GoalsViewModel(application: Application) : AndroidViewModel(application) {
             completedGoals = completions
         )
     }.onEach { state ->
+        val syncKey = listOf(
+            now.toString(),
+            state.dailyProgress,
+            state.weeklyProgress,
+            state.monthlyProgress
+        )
+        if (syncKey == lastSyncedProgress) return@onEach
+        lastSyncedProgress = syncKey
+
         // Completion keys are unique in Room; repeated emissions do not duplicate history.
         val weekKey = now.with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY)).toString()
         repo.syncCurrentCompletion(GoalType.DAILY, now.toString(),
