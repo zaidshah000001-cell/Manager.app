@@ -1,6 +1,8 @@
 package com.zaidshah.manager
 
 import android.os.Bundle
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.core.view.WindowCompat
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -33,6 +35,7 @@ import com.zaidshah.manager.ui.theme.ManagerTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         val prefs = AppPreferences(this)
 
         setContent {
@@ -50,7 +53,7 @@ fun ManagerMainApp() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
         NavHost(
             navController = navController,
             startDestination = Screen.Home.route,
