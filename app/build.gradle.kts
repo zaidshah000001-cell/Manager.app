@@ -34,7 +34,7 @@ android {
             )
         }
         debug {
-            applicationIdSuffix = ".geminitest"
+            applicationIdSuffix = ".correctionsv1"
             isMinifyEnabled = false
         }
     }
