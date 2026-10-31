@@ -31,6 +31,13 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
+import android.net.Uri
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -64,6 +71,17 @@ fun LoansScreen(viewModel: LoansViewModel) {
     var nameInput by remember { mutableStateOf("") }
     var amountInput by remember { mutableStateOf("") }
     var directionInput by remember { mutableStateOf(LoanDirection.BORROWED) }
+    var upiInput by remember { mutableStateOf("") }
+    var chosenPerson by remember { mutableStateOf<Long?>(null) }
+    var chosenLoan by remember { mutableStateOf<Long?>(null) }
+    var showHistory by remember { mutableStateOf(false) }
+    var step by remember { mutableStateOf("details") }
+    var repaymentText by remember { mutableStateOf("") }
+    var errorText by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val dateFmt = remember { DateTimeFormatter.ofPattern("dd MMM yyyy").withZone(ZoneId.systemDefault()) }
+    val person = uiState.people.find { it.person.id == chosenPerson }
+    val selected = person?.loans?.find { it.loan.id == chosenLoan }
 
     if (showAddLoanDialog) {
         AlertDialog(
@@ -85,6 +103,9 @@ fun LoansScreen(viewModel: LoansViewModel) {
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth()
                     )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    OutlinedTextField(value = upiInput, onValueChange = { upiInput = it },
+                        label = { Text("UPI ID (optional)") }, modifier = Modifier.fillMaxWidth())
                     Spacer(modifier = Modifier.height(10.dp))
                     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                         SegmentedButton(
@@ -109,9 +130,10 @@ fun LoansScreen(viewModel: LoansViewModel) {
                     onClick = {
                         val paise = CurrencyUtils.parseRupeesToPaise(amountInput)
                         if (nameInput.isNotBlank() && paise != null && paise > 0) {
-                            viewModel.addLoan(nameInput.trim(), "", "", directionInput, paise)
+                            viewModel.addLoan(nameInput.trim(), "", upiInput.trim(), directionInput, paise)
                             nameInput = ""
                             amountInput = ""
+                            upiInput = ""
                             showAddLoanDialog = false
                         }
                     }
@@ -124,6 +146,97 @@ fun LoansScreen(viewModel: LoansViewModel) {
                     Text("Cancel", color = DarkText)
                 }
             }
+        )
+    }
+
+    if (person != null && selected != null) {
+        val balance = selected.outstandingPaise
+        val loan = selected.loan
+        AlertDialog(
+            onDismissRequest = { chosenPerson = null; chosenLoan = null; step = "details" },
+            title = { Text(if (step == "history") "Repayment history" else person.person.name) },
+            text = {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    if (step == "history") {
+                        if (selected.repayments.isEmpty()) Text("No repayments recorded")
+                        selected.repayments.forEach { r ->
+                            Text("${dateFmt.format(r.occurredAt)} · ${CurrencyUtils.formatPaise(r.amountPaise)}")
+                            Spacer(Modifier.height(8.dp))
+                        }
+                        TextButton(onClick = { step = "details" }) { Text("Back") }
+                    } else {
+                        Text("Original: ${CurrencyUtils.formatPaise(loan.principalPaise)}")
+                        Text("Taken / given: ${dateFmt.format(loan.issuedAt)}")
+                        Text("Due: ${loan.dueAt?.let { dateFmt.format(it) } ?: "Not set"}")
+                        Text("UPI ID: ${person.person.upiId.ifBlank { "Not set" }}")
+                        Text("Repaid: ${CurrencyUtils.formatPaise(selected.totalRepaidPaise)}")
+                        Spacer(Modifier.height(8.dp))
+                        Text("Outstanding: ${CurrencyUtils.formatPaise(balance)}",
+                            fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                        Spacer(Modifier.height(12.dp))
+                        if (step == "details") {
+                            if (balance > 0L) {
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    OutlinedButton(onClick = {
+                                        repaymentText = ""; errorText = ""; step = "pay"
+                                    }) { Text("Partial payment") }
+                                    Button(onClick = {
+                                        repaymentText = (balance / 100.0).toString()
+                                        errorText = ""; step = "pay"
+                                    }) { Text("Full payment") }
+                                }
+                            }
+                            TextButton(onClick = { step = "history" }) { Text("Payment history") }
+                        }
+                        if (step == "pay") {
+                            OutlinedTextField(
+                                value = repaymentText, onValueChange = { repaymentText = it; errorText = "" },
+                                label = { Text("Amount (₹)") },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            val paise = CurrencyUtils.parseRupeesToPaise(repaymentText)
+                            val valid = paise != null && paise > 0 && paise <= balance
+                            if (errorText.isNotBlank()) Text(errorText, color = Color.Red)
+                            Spacer(Modifier.height(8.dp))
+                            if (loan.direction == LoanDirection.BORROWED && person.person.upiId.isNotBlank()) {
+                                OutlinedButton(onClick = {
+                                    if (!valid) errorText = "Enter a valid amount"
+                                    else {
+                                        val uri = Uri.Builder().scheme("upi").authority("pay")
+                                            .appendQueryParameter("pa", person.person.upiId)
+                                            .appendQueryParameter("pn", person.person.name)
+                                            .appendQueryParameter("am", String.format(java.util.Locale.US, "%.2f", paise!! / 100.0))
+                                            .appendQueryParameter("cu", "INR").build()
+                                        try { context.startActivity(Intent(Intent.ACTION_VIEW, uri)) }
+                                        catch (_: Exception) { errorText = "No UPI app available" }
+                                    }
+                                }) { Text("Open UPI app") }
+                            } else Text("UPI unavailable for this loan. Record verified external payment.", fontSize = 12.sp)
+                            Text("Opening UPI does not confirm payment. Verify it before recording.",
+                                fontSize = 12.sp, color = MutedText)
+                            Button(onClick = {
+                                if (valid) step = "confirm" else errorText = "Enter a valid amount"
+                            }) { Text("Payment completed") }
+                        }
+                        if (step == "confirm") {
+                            Text("Have you verified the transfer of ${CurrencyUtils.formatPaise(CurrencyUtils.parseRupeesToPaise(repaymentText) ?: 0L)}?")
+                            Button(onClick = {
+                                val p = CurrencyUtils.parseRupeesToPaise(repaymentText)
+                                if (p != null && p > 0L && p <= balance) {
+                                    viewModel.recordRepayment(loan.id, p)
+                                    chosenPerson = null; chosenLoan = null; step = "details"
+                                }
+                            }) { Text("Confirm verified payment") }
+                            TextButton(onClick = { step = "pay" }) { Text("Cancel") }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { chosenPerson = null; chosenLoan = null; step = "details" }) { Text("Close") }
+            },
+            shape = RoundedCornerShape(24.dp)
         )
     }
 
@@ -245,15 +358,17 @@ fun LoansScreen(viewModel: LoansViewModel) {
             listOf(
                 Pair(LoanFilter.ALL, stringResource(R.string.all)),
                 Pair(LoanFilter.BORROWED, stringResource(R.string.borrowed)),
-                Pair(LoanFilter.LENT, stringResource(R.string.lent))
+                Pair(LoanFilter.LENT, stringResource(R.string.lent)),
+                Pair(LoanFilter.ALL, "History")
             ).forEach { (f, label) ->
-                val isSelected = uiState.filter == f
+                val isHistory = label == "History"
+                val isSelected = if (isHistory) showHistory else !showHistory && uiState.filter == f
                 Box(
                     modifier = Modifier
                         .weight(1f)
                         .clip(RoundedCornerShape(12.dp))
                         .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
-                        .clickable { viewModel.setFilter(f) }
+                        .clickable { showHistory = isHistory; if (!isHistory) viewModel.setFilter(f) }
                         .padding(vertical = 8.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -299,7 +414,22 @@ fun LoansScreen(viewModel: LoansViewModel) {
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                if (uiState.people.isEmpty()) {
+                if (showHistory) {
+                    val completed = uiState.people.flatMap { p ->
+                        p.loans.filter { it.isFullyRepaid }.map { p to it }
+                    }
+                    if (completed.isEmpty()) Text("No settled loans yet", color = MutedText)
+                    completed.forEach { (p, item) ->
+                        Row(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp))
+                            .background(SageTrack).clickable {
+                                chosenPerson = p.person.id; chosenLoan = item.loan.id; step = "history"
+                            }.padding(14.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(p.person.name)
+                            Text(CurrencyUtils.formatPaise(item.loan.principalPaise))
+                        }
+                        Spacer(Modifier.height(8.dp))
+                    }
+                } else if (uiState.people.none { p -> p.loans.any { !it.isFullyRepaid } }) {
                     Text(
                         text = stringResource(R.string.no_loans_yet),
                         fontSize = 13.sp,
@@ -307,13 +437,21 @@ fun LoansScreen(viewModel: LoansViewModel) {
                         modifier = Modifier.padding(vertical = 12.dp)
                     )
                 } else {
-                    uiState.people.forEachIndexed { index, personWithLoans ->
+                    uiState.people.filter { p -> p.loans.any { !it.isFullyRepaid } }.forEachIndexed { index, personWithLoans ->
                         val totalOutstanding = personWithLoans.loans.sumOf { it.outstandingPaise }
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(16.dp))
                                 .background(SageTrack)
+                                .clickable {
+                                    val active = personWithLoans.loans.firstOrNull { !it.isFullyRepaid }
+                                    if (active != null) {
+                                        chosenPerson = personWithLoans.person.id
+                                        chosenLoan = active.loan.id
+                                        step = "details"
+                                    }
+                                }
                                 .padding(14.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -341,7 +479,7 @@ fun LoansScreen(viewModel: LoansViewModel) {
                                         color = DarkText
                                     )
                                     Text(
-                                        text = "${personWithLoans.loans.size} active loan(s)",
+                                        text = "${personWithLoans.loans.count { !it.isFullyRepaid }} active loan(s)",
                                         fontSize = 11.sp,
                                         color = MutedText
                                     )
