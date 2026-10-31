@@ -2,6 +2,9 @@ package com.zaidshah.manager
 
 import android.os.Bundle
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -37,8 +40,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.statusBarColor = android.graphics.Color.rgb(247, 244, 236)
+        window.navigationBarColor = android.graphics.Color.rgb(247, 244, 236)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            window.isNavigationBarContrastEnforced = false
+        }
         WindowCompat.getInsetsController(window, window.decorView)
             .isAppearanceLightStatusBars = true
+        WindowCompat.getInsetsController(window, window.decorView)
+            .isAppearanceLightNavigationBars = true
         val prefs = AppPreferences(this)
 
         setContent {
@@ -99,7 +108,10 @@ fun ManagerMainApp() {
                     }
                 }
             },
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(bottom = 12.dp)
         )
     }
 }
