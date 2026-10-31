@@ -1,0 +1,2 @@
+-keep class com.zaidshah.manager.data.local.entities.** { *; }
+-keep class com.zaidshah.manager.data.local.Converters { *; }

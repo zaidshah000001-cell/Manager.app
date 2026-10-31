@@ -1,0 +1,65 @@
+<resources>
+    <string name="app_name">Manager</string>
+    <string name="nav_home">होम</string>
+    <string name="nav_goals">लक्ष्य</string>
+    <string name="nav_loans">ऋण</string>
+    <string name="nav_settings">सेटिंग्स</string>
+
+    <string name="good_morning">शुभ प्रभात!</string>
+    <string name="good_afternoon">शुभ दोपहर!</string>
+    <string name="good_evening">शुभ संध्या!</string>
+    <string name="hey_user">नमस्ते %1$s,</string>
+
+    <string name="daily_earnings">दैनिक आय</string>
+    <string name="daily_goal">दैनिक लक्ष्य</string>
+    <string name="earned">कमाई</string>
+    <string name="spent">खर्च</string>
+    <string name="net">शुद्ध</string>
+
+    <string name="loans_lending">उधार एवं ऋण</string>
+    <string name="recent_transactions">हाल के लेन-देन</string>
+    <string name="see_all">सभी देखें</string>
+    <string name="no_loans_yet">कोई ऋण नहीं है</string>
+    <string name="no_transactions_yet">कोई लेन-देन नहीं है</string>
+
+    <string name="goals_subtitle">तीन लक्ष्य। एक स्पष्ट तस्वीर।</string>
+    <string name="your_progress">आपकी प्रगति</string>
+    <string name="progress_helper">जोड़ने या संपादित करने के लिए टैप करें</string>
+    <string name="completed_goals">पूर्ण लक्ष्य</string>
+    <string name="goal_history">लक्ष्य इतिहास</string>
+    <string name="daily">दैनिक</string>
+    <string name="weekly">साप्ताहिक</string>
+    <string name="monthly">मासिक</string>
+    <string name="left_to_save">%1$s शेष</string>
+
+    <string name="loans_subtitle">जानें कि आपको क्या देना है और क्या लेना है।</string>
+    <string name="outstanding_overview">कुल बकाया विवरण</string>
+    <string name="you_borrowed">आपने उधार लिया</string>
+    <string name="you_lent">आपने उधार दिया</string>
+    <string name="people">लोग</string>
+    <string name="add_loan">+ ऋण जोड़ें</string>
+    <string name="all">सभी</string>
+    <string name="borrowed">उधार लिया</string>
+    <string name="lent">उधार दिया</string>
+
+    <string name="settings_subtitle">मैनेजर को अपना बनाएं।</string>
+    <string name="local_profile">स्थानीय प्रोफ़ाइल · कोई लॉगिन नहीं</string>
+    <string name="choose_preset_avatars">अवतार चुनें</string>
+    <string name="appearance">दिखावट</string>
+    <string name="appearance_helper">3 प्रीसेट · पूर्वावलोकन के लिए टैप करें</string>
+    <string name="theme_forest">फ़ॉरेस्ट और क्रीम</string>
+    <string name="theme_midnight">मिडनाइट और सिल्वर</string>
+    <string name="theme_ocean">ओशन और आइवरी</string>
+    <string name="custom_colours">कस्टम रंग</string>
+    <string name="custom_colours_note">केवल दो प्रमुख रंगों को बदला जा सकता है</string>
+    <string name="primary">प्राथमिक</string>
+    <string name="background">पृष्ठभूमि</string>
+    <string name="preferences">प्राथमिकताएं</string>
+    <string name="language">भाषा</string>
+    <string name="sms_detection">एसएमएस पहचान</string>
+    <string name="sms_status">अभी सक्षम नहीं है</string>
+    <string name="backup_restore">बैकअप और पुनर्स्थापना</string>
+    <string name="backup_status">जल्द आ रहा है</string>
+    <string name="app_info">ऐप जानकारी</string>
+    <string name="app_version">Manager v1.0.0 (ऑफ़लाइन)</string>
+</resources>

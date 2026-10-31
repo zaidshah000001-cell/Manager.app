@@ -1,0 +1,65 @@
+<resources>
+    <string name="app_name">Manager</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_goals">Goals</string>
+    <string name="nav_loans">Loans</string>
+    <string name="nav_settings">Settings</string>
+
+    <string name="good_morning">Good morning!</string>
+    <string name="good_afternoon">Good afternoon!</string>
+    <string name="good_evening">Good evening!</string>
+    <string name="hey_user">Hey %1$s,</string>
+
+    <string name="daily_earnings">Daily earnings</string>
+    <string name="daily_goal">Daily goal</string>
+    <string name="earned">Earned</string>
+    <string name="spent">Spent</string>
+    <string name="net">Net</string>
+
+    <string name="loans_lending">Loans &amp; Lending</string>
+    <string name="recent_transactions">Recent transactions</string>
+    <string name="see_all">See all</string>
+    <string name="no_loans_yet">No loans yet</string>
+    <string name="no_transactions_yet">No transactions yet</string>
+
+    <string name="goals_subtitle">Three goals. One clear picture.</string>
+    <string name="your_progress">Your progress</string>
+    <string name="progress_helper">Tap a ring to add or edit</string>
+    <string name="completed_goals">Completed goals</string>
+    <string name="goal_history">Goal history</string>
+    <string name="daily">Daily</string>
+    <string name="weekly">Weekly</string>
+    <string name="monthly">Monthly</string>
+    <string name="left_to_save">%1$s left</string>
+
+    <string name="loans_subtitle">Know what you owe and are owed.</string>
+    <string name="outstanding_overview">Outstanding overview</string>
+    <string name="you_borrowed">YOU BORROWED</string>
+    <string name="you_lent">YOU LENT</string>
+    <string name="people">People</string>
+    <string name="add_loan">+ Add loan</string>
+    <string name="all">All</string>
+    <string name="borrowed">Borrowed</string>
+    <string name="lent">Lent</string>
+
+    <string name="settings_subtitle">Make Manager feel like yours.</string>
+    <string name="local_profile">Local profile · No login</string>
+    <string name="choose_preset_avatars">Choose from preset avatars</string>
+    <string name="appearance">Appearance</string>
+    <string name="appearance_helper">3 presets · tap to preview</string>
+    <string name="theme_forest">Forest &amp; Cream</string>
+    <string name="theme_midnight">Midnight &amp; Silver</string>
+    <string name="theme_ocean">Ocean &amp; Ivory</string>
+    <string name="custom_colours">Custom colours</string>
+    <string name="custom_colours_note">Only two major colours can be edited</string>
+    <string name="primary">Primary</string>
+    <string name="background">Background</string>
+    <string name="preferences">Preferences</string>
+    <string name="language">Language</string>
+    <string name="sms_detection">SMS detection</string>
+    <string name="sms_status">Not enabled yet</string>
+    <string name="backup_restore">Backup &amp; restore</string>
+    <string name="backup_status">Coming later</string>
+    <string name="app_info">App information</string>
+    <string name="app_version">Manager v1.0.0 (Offline)</string>
+</resources>
