@@ -88,7 +88,7 @@ fun HomeScreen(
             .fillMaxSize()
             .background(WarmCream)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 24.dp)
+            .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -124,7 +124,7 @@ fun HomeScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Card A: Daily earnings
         Card(
@@ -135,7 +135,7 @@ fun HomeScreen(
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
-            Column(modifier = Modifier.padding(20.dp)) {
+            Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = stringResource(R.string.daily_earnings),
                     fontSize = 15.sp,
@@ -152,7 +152,7 @@ fun HomeScreen(
                     CircularProgressRing(
                         percentage = uiState.goalPercentage,
                         caption = stringResource(R.string.daily_goal),
-                        size = 110.dp,
+                        size = 94.dp,
                         strokeWidth = 7.dp
                     )
 
@@ -190,7 +190,7 @@ fun HomeScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // Keep the selected-day indicator in the same centre position.
                 // Horizontal swipes change the dates, not the indicator's location.
@@ -250,7 +250,7 @@ fun HomeScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Card B: Loans & Lending
         Card(
@@ -259,7 +259,7 @@ fun HomeScreen(
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
-            Column(modifier = Modifier.padding(20.dp)) {
+            Column(modifier = Modifier.padding(16.dp)) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -339,7 +339,7 @@ fun HomeScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Card C: Recent transactions
         Card(
@@ -348,7 +348,7 @@ fun HomeScreen(
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
-            Column(modifier = Modifier.padding(20.dp)) {
+            Column(modifier = Modifier.padding(16.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -434,6 +434,6 @@ fun HomeScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(84.dp))
+        Spacer(modifier = Modifier.height(92.dp))
     }
 }
