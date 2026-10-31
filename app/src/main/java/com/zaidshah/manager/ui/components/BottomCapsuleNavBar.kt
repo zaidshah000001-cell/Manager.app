@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -68,13 +70,15 @@ fun BottomCapsuleNavBar(
                 val isSelected = currentRoute == item.route
                 Box(
                     modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
                         .clip(RoundedCornerShape(20.dp))
                         .background(if (isSelected) SageTrack else Color.Transparent)
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
                         ) { onNavigate(item.route) }
-                        .padding(horizontal = 14.dp, vertical = 5.dp),
+                        .padding(vertical = 5.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
