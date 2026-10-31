@@ -22,6 +22,14 @@ fun ManagerTheme(
     content: @Composable () -> Unit
 ) {
     val colors = when (preset) {
+        "IVORY_NAVY" -> CustomThemeColors(
+            primary = Color(0xFF003D74),
+            background = Color(0xFFFFFFF0),
+            cardBackground = Color(0xFFFFFFFF),
+            track = Color(0xFFE3EDF4),
+            textPrimary = Color(0xFF003D74),
+            textMuted = Color(0xFF536F86)
+        )
         "MIDNIGHT" -> CustomThemeColors(
             primary = MidnightPrimary,
             background = MidnightBg,
