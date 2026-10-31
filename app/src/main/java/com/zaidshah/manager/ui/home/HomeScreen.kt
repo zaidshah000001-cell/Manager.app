@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -86,9 +87,9 @@ fun HomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(WarmCream)
+            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 24.dp)
+            .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -99,13 +100,13 @@ fun HomeScreen(
                 Text(
                     text = stringResource(R.string.hey_user, uiState.profileName),
                     fontSize = 14.sp,
-                    color = MutedText
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = DateUtils.getGreeting(),
-                    fontSize = 24.sp,
+                    fontSize = 23.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DarkText
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
             Box(
@@ -124,23 +125,21 @@ fun HomeScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Card A: Daily earnings
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { showAddDialog = true },
+            modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
-            Column(modifier = Modifier.padding(20.dp)) {
+            Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = stringResource(R.string.daily_earnings),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = DarkText
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -152,7 +151,7 @@ fun HomeScreen(
                     CircularProgressRing(
                         percentage = uiState.goalPercentage,
                         caption = stringResource(R.string.daily_goal),
-                        size = 110.dp,
+                        size = 92.dp,
                         strokeWidth = 7.dp
                     )
 
@@ -161,25 +160,25 @@ fun HomeScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Column {
-                            Text(text = stringResource(R.string.earned), fontSize = 12.sp, color = MutedText)
+                            Text(text = stringResource(R.string.earned), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(
                                 text = CurrencyUtils.formatPaise(uiState.earnedPaise),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = DarkText
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                         Column {
-                            Text(text = stringResource(R.string.spent), fontSize = 12.sp, color = MutedText)
+                            Text(text = stringResource(R.string.spent), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(
                                 text = CurrencyUtils.formatPaise(uiState.spentPaise),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = DarkText
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                         Column {
-                            Text(text = stringResource(R.string.net), fontSize = 12.sp, color = MutedText)
+                            Text(text = stringResource(R.string.net), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(
                                 text = CurrencyUtils.formatPaise(uiState.netPaise),
                                 fontSize = 16.sp,
@@ -190,7 +189,7 @@ fun HomeScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // Keep the selected-day indicator in the same centre position.
                 // Horizontal swipes change the dates, not the indicator's location.
@@ -250,16 +249,16 @@ fun HomeScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Card B: Loans & Lending
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
-            Column(modifier = Modifier.padding(20.dp)) {
+            Column(modifier = Modifier.padding(16.dp)) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -271,7 +270,7 @@ fun HomeScreen(
                         text = stringResource(R.string.loans_lending),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = DarkText
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
@@ -286,7 +285,7 @@ fun HomeScreen(
                     Text(
                         text = stringResource(R.string.no_loans_yet),
                         fontSize = 13.sp,
-                        color = MutedText,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(vertical = 12.dp)
                     )
                 } else {
@@ -321,16 +320,16 @@ fun HomeScreen(
                                     text = tile.name,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = DarkText,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     maxLines = 1
                                 )
-                                Text(text = tile.direction, fontSize = 10.sp, color = MutedText)
+                                Text(text = tile.direction, fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = CurrencyUtils.formatPaise(tile.balancePaise),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = DarkText
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                             }
                         }
@@ -339,16 +338,16 @@ fun HomeScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Card C: Recent transactions
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
-            Column(modifier = Modifier.padding(20.dp)) {
+            Column(modifier = Modifier.padding(16.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -358,7 +357,7 @@ fun HomeScreen(
                         text = stringResource(R.string.recent_transactions),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = DarkText
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = stringResource(R.string.see_all),
@@ -374,7 +373,7 @@ fun HomeScreen(
                     Text(
                         text = stringResource(R.string.no_transactions_yet),
                         fontSize = 13.sp,
-                        color = MutedText,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(vertical = 12.dp)
                     )
                 } else {
@@ -407,12 +406,12 @@ fun HomeScreen(
                                         text = tx.note,
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Medium,
-                                        color = DarkText
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Text(
                                         text = DateUtils.formatDisplayDate(tx.occurredAt),
                                         fontSize = 11.sp,
-                                        color = MutedText
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
@@ -434,6 +433,6 @@ fun HomeScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(84.dp))
+        Spacer(modifier = Modifier.height(112.dp))
     }
 }
