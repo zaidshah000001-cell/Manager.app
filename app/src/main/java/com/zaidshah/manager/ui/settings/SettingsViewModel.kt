@@ -15,7 +15,8 @@ data class SettingsUiState(
     val avatarId: Int = 0,
     val themePreset: String = "FOREST",
     val customPrimary: String? = null,
-    val customBackground: String? = null
+    val customBackground: String? = null,
+    val recentColors: List<String> = emptyList()
 )
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
@@ -26,14 +27,22 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         prefs.avatarId,
         prefs.themePreset,
         prefs.customPrimary,
-        prefs.customBackground
-    ) { name, avatar, theme, prim, bg ->
+        prefs.customBackground,
+        prefs.recentColors
+    ) { values ->
+        val name = values[0] as String
+        val avatar = values[1] as Int
+        val theme = values[2] as String
+        val prim = values[3] as String?
+        val bg = values[4] as String?
+        @Suppress("UNCHECKED_CAST") val recent = values[5] as List<String>
         SettingsUiState(
             profileName = name,
             avatarId = avatar,
             themePreset = theme,
             customPrimary = prim,
-            customBackground = bg
+            customBackground = bg,
+            recentColors = recent
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SettingsUiState())
 
@@ -47,6 +56,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun setThemePreset(preset: String) {
         viewModelScope.launch { prefs.setThemePreset(preset) }
+    }
+
+    fun applyAccent(hex: String) {
+        viewModelScope.launch { prefs.applyAccent(hex) }
     }
 
     fun setCustomColors(primaryHex: String, bgHex: String) {
