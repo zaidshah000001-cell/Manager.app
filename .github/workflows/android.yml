@@ -1,7 +1,7 @@
 name: Manager Gemini Android Build
 on:
   push:
-    branches: [main]
+    branches: [gemini-isolated-test]
   workflow_dispatch:
 jobs:
   android:
