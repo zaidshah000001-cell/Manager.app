@@ -53,9 +53,9 @@ fun BottomCapsuleNavBar(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 12.dp)
-            .height(72.dp),
-        shape = RoundedCornerShape(36.dp),
+            .padding(horizontal = 20.dp, vertical = 9.dp)
+            .height(66.dp),
+        shape = RoundedCornerShape(33.dp),
         color = Color.White,
         shadowElevation = 2.dp
     ) {
@@ -74,7 +74,7 @@ fun BottomCapsuleNavBar(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
                         ) { onNavigate(item.route) }
-                        .padding(horizontal = 14.dp, vertical = 8.dp),
+                        .padding(horizontal = 14.dp, vertical = 5.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
