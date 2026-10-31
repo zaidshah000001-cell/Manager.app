@@ -19,7 +19,19 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.4'
+      - name: Restore stable signing keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.MANAGER_KEYSTORE_BASE64 }}
+          SIGNING_PASSWORD: ${{ secrets.MANAGER_KEYSTORE_PASSWORD }}
+        run: |
+          test -n "$KEYSTORE_BASE64"
+          test -n "$SIGNING_PASSWORD"
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/manager-test.jks"
+          keytool -list -keystore "$RUNNER_TEMP/manager-test.jks" -storepass "$SIGNING_PASSWORD" -alias manager-test > /dev/null
       - name: Compile Gemini app
+        env:
+          MANAGER_SIGNING_KEYSTORE_PATH: ${{ runner.temp }}/manager-test.jks
+          MANAGER_SIGNING_PASSWORD: ${{ secrets.MANAGER_KEYSTORE_PASSWORD }}
         run: gradle --no-daemon :app:assembleDebug --stacktrace
       - name: Run unit tests
         run: gradle --no-daemon :app:testDebugUnitTest
