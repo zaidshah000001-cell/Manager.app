@@ -10,6 +10,7 @@ import com.zaidshah.manager.data.local.entities.TransactionType
 import com.zaidshah.manager.util.DateUtils
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import java.time.Instant
 import java.time.LocalDate
 
@@ -39,6 +40,21 @@ class FinanceRepository(
             val e = earned ?: 0L
             val s = spent ?: 0L
             DailySummary(earnedPaise = e, spentPaise = s, netPaise = e - s)
+        }
+    }
+
+    fun getEarnedForPeriod(start: Instant, end: Instant): Flow<Long> =
+        transactionDao.getTotalAmountByTypeBetween(TransactionType.EARN, start, end)
+            .map { it ?: 0L }
+
+    suspend fun syncCurrentCompletion(type: GoalType, periodKey: String, earned: Long, target: Long) {
+        if (target <= 0L) return
+        if (earned >= target) {
+            goalDao.insertCompletion(
+                GoalCompletionEntity(goalType = type, periodKey = periodKey, targetPaise = target)
+            )
+        } else {
+            goalDao.revokeCompletion(type, periodKey)
         }
     }
 
