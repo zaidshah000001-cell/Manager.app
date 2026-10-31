@@ -1,6 +1,8 @@
 package com.zaidshah.manager.ui.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -190,20 +192,45 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
+                // Keep the selected-day indicator in the same centre position.
+                // Horizontal swipes change the dates, not the indicator's location.
+                var dateDrag by remember { mutableStateOf(0f) }
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .pointerInput(uiState.selectedDate) {
+                            detectHorizontalDragGestures(
+                                onDragStart = { dateDrag = 0f },
+                                onHorizontalDrag = { change, dragAmount ->
+                                    change.consume()
+                                    dateDrag += dragAmount
+                                },
+                                onDragEnd = {
+                                    val steps = (kotlin.math.abs(dateDrag) / 55f).toInt().coerceAtLeast(1).coerceAtMost(7)
+                                    if (kotlin.math.abs(dateDrag) > 30f) {
+                                        val delta = if (dateDrag < 0) steps.toLong() else -steps.toLong()
+                                        viewModel.setSelectedDate(uiState.selectedDate.plusDays(delta))
+                                    }
+                                    dateDrag = 0f
+                                },
+                                onDragCancel = { dateDrag = 0f }
+                            )
+                        },
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     val base = uiState.selectedDate
-                    val days = (-2..2).map { base.plusDays(it.toLong()) }
-                    days.forEach { date ->
-                        val isSelected = date == uiState.selectedDate
+                    (-2..2).forEach { offset ->
+                        val date = base.plusDays(offset.toLong())
+                        val isSelected = offset == 0
                         Column(
                             modifier = Modifier
+                                .weight(1f)
+                                .padding(horizontal = 2.dp)
                                 .clip(RoundedCornerShape(16.dp))
                                 .background(if (isSelected) ForestGreen else Color.Transparent)
                                 .clickable { viewModel.setSelectedDate(date) }
-                                .padding(horizontal = 10.dp, vertical = 6.dp),
+                                .padding(vertical = 8.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
