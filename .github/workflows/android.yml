@@ -14,14 +14,20 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
-      - run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Verify Android SDK on GitHub runner
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          test -d "$ANDROID_HOME"
+          ls "$ANDROID_HOME/cmdline-tools"
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
-      - run: gradle --no-daemon :app:assembleDebug
-      - run: gradle --no-daemon :app:testDebugUnitTest
+      - name: Build debug APK
+        run: gradle --no-daemon :app:assembleDebug
+      - name: Run unit tests
+        run: gradle --no-daemon :app:testDebugUnitTest
       - uses: actions/upload-artifact@v4
+        if: success()
         with:
           name: manager-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
